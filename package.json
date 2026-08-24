@@ -1,0 +1,36 @@
+{
+  "name": "dancecard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DanceCARD mobile H5, WeChat Mini Program build, administration app, and CloudBase backend",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22 <25",
+    "pnpm": ">=11 <12"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "dev": "pnpm -r --parallel --if-present dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint \"apps/**/src/**/*.{ts,tsx}\" \"packages/**/src/**/*.{ts,tsx}\" --max-warnings=0",
+    "test": "pnpm run test:unit",
+    "test:unit": "pnpm -r --filter './apps/**' --filter './packages/**' --if-present test",
+    "test:e2e": "pnpm --filter @dancecard/e2e test",
+    "typecheck": "pnpm -r --if-present typecheck"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.2",
+    "@typescript-eslint/eslint-plugin": "8.67.0",
+    "@typescript-eslint/parser": "8.67.0",
+    "eslint": "8.57.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-react": "7.37.5",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "jsdom": "30.0.1",
+    "prettier": "3.9.6",
+    "vitest": "4.1.11"
+  }
+}

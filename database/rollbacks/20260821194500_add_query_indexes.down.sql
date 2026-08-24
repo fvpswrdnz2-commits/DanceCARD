@@ -1,0 +1,10 @@
+drop index if exists public.admin_action_logs_actor_idx;
+drop index if exists public.admin_action_logs_target_idx;
+drop index if exists public.dance_cards_expiration_idx;
+drop index if exists public.dance_cards_owner_idx;
+drop index if exists public.dance_cards_public_listing_idx;
+drop index if exists public.user_identities_subject_idx;
+drop index if exists public.studios_normalized_search_idx;
+drop index if exists public.studios_district_public_order_idx;
+drop index if exists public.districts_city_public_order_idx;
+drop index if exists public.cities_public_order_idx;

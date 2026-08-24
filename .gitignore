@@ -1,0 +1,36 @@
+# Dependencies and package-manager state
+node_modules/
+.pnpm-store/
+
+# Build and tool output
+work/
+dist/
+build/
+.temp/
+.taro/
+.vite/
+.cache/
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# CloudBase local state
+.cloudbase/
+.cloudbase-cache/
+.tcb/
+cloudbaserc.json
+cloudfunctions/*/index.js
+cloudfunctions/*/deploy/index.js
+
+# Local environment files; examples remain trackable
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs and local operating-system files
+*.log
+.DS_Store

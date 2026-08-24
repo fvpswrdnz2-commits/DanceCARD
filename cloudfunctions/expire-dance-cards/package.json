@@ -1,0 +1,19 @@
+{
+  "name": "@dancecard/expire-dance-cards",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && cp build/index.js index.js && cp build/index.js deploy/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cloudbase/js-sdk": "3.8.1",
+    "@cloudbase/signature-nodejs": "2.0.0"
+  },
+  "devDependencies": {
+    "@dancecard/config": "workspace:*",
+    "@types/node": "24.10.1",
+    "typescript": "^5.9.3"
+  }
+}

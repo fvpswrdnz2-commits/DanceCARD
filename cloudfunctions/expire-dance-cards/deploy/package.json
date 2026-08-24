@@ -1,0 +1,10 @@
+{
+  "name": "dancecard-expire-dance-cards-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/js-sdk": "3.8.1",
+    "@cloudbase/signature-nodejs": "2.0.0"
+  }
+}

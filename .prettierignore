@@ -1,0 +1,13 @@
+node_modules/
+work/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+memory-bank/
+pnpm-lock.yaml
+AGENTS.md
+CLAUDE.md
+apps/user-app/src/index.html

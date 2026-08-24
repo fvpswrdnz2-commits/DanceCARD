@@ -1,0 +1,52 @@
+.admin-shell {
+  min-width: 0;
+  min-height: 100vh;
+}
+.admin-shell--center {
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.admin-shell__content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+}
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #2142a4;
+}
+.admin-title,
+.admin-identity {
+  margin: 0 !important;
+  color: #fff !important;
+}
+.login-card {
+  width: min(100%, 440px);
+}
+.login-form {
+  margin-top: 24px;
+}
+.admin-tabs {
+  margin-top: 20px;
+}
+.panel-filter {
+  width: min(100%, 320px);
+  margin-bottom: 16px;
+}
+.panel-filters {
+  margin-bottom: 16px;
+}
+@media (max-width: 720px) {
+  .admin-header {
+    height: auto;
+    padding: 16px;
+  }
+  .admin-shell__content {
+    padding: 16px;
+  }
+}
