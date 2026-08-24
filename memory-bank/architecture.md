@@ -77,6 +77,8 @@ The root pnpm workspace owns the only lockfile and dependency installation. Appl
 - `database/tests/milestone-3.sql`: transactional constraints, RLS, visibility, contact, expiration, pagination, and audit tests.
 - `database/tests/milestone-5.sql`: transactional seller-state, atomic-write, administrator-action, duplicate, disabled-user, and audit tests.
 - `cloudfunctions/expire-dance-cards/`: daily expiration function. TypeScript source compiles to an ignored deployment artifact; the tracked `deploy/package.json` contains runtime-only dependencies.
+- `README.md`: public repository overview, architecture summary, local setup, verification, release status, and license position.
+- `SECURITY.md`: private vulnerability-reporting route and tracked-secret policy.
 - `AGENTS.md` and `CLAUDE.md`: contributor and AI-maintainer guardrails.
 
 Generated `dist/`, test reports, dependencies, local CloudBase state, and local environment files are ignored and are not architecture sources.
@@ -152,5 +154,9 @@ The development H5 is publicly reachable for product acceptance, but the formal 
 ## Git Baseline
 
 - Branch: `main`.
-- Documentation baseline: `8b3e071 docs: establish project memory bank`.
-- Existing uncommitted product-document updates are intentional and must be preserved.
+- Public repository: `https://github.com/fvpswrdnz2-commits/DanceCARD`.
+- `origin` uses HTTPS and tracks `origin/main`; the remote contains only the public `main` branch.
+- The public history starts from a sanitized current-source snapshot authored with the GitHub no-reply address. Earlier local commits containing a machine-generated author address and obsolete administrator bootstrap details were not uploaded.
+- A recoverable pre-public history bundle exists only in ignored local `work/` storage. It is not a source of truth and must never be pushed to the public remote.
+- Only safe placeholder `.env.example` files are tracked. Real CloudBase configuration, database URLs, SMS credentials, maintenance tokens, administrator identities, and user data remain in ignored local files or managed cloud configuration.
+- GitHub hosts source and collaboration history only. CloudBase remains the runtime platform, and no GitHub-to-CloudBase automatic deployment is configured.

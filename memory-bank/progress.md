@@ -127,7 +127,7 @@ Milestones 1 through 6 are complete. Steps 1–62 have passed their implemented 
 
 ## Next Handoff
 
-Step 63 is the next implementation entry point. Read `memory-bank/architecture.md` and `memory-bank/Design-Document.md` in full before any further code changes.
+The development MVP and public source publication are complete. The next product milestone is formal production readiness: privacy policy, user agreement, professional legal review, production CloudBase configuration, domain, and release acceptance. Read `memory-bank/architecture.md` and `memory-bank/Design-Document.md` in full before any further code changes.
 
 ## Steps 43–53 Record
 
@@ -176,3 +176,14 @@ Step 63 is the next implementation entry point. Read `memory-bank/architecture.m
 - Saved the approved visual mockup as `memory-bank/assets/ui-reference.png` and archived the superseded Neo-pop reference as `memory-bank/assets/ui-reference-neo-pop-archive.png`.
 - Verification passed: formatting, ESLint, workspace TypeScript, 41 unit/component tests, 5 H5 Playwright journeys, H5 production build, and WeChat production build.
 - Deployed the redesigned H5 build to the existing development acceptance URL for product review; production and legal release prerequisites remain unchanged.
+
+## Public GitHub Publication
+
+- Published the repository as `PUBLIC` at `https://github.com/fvpswrdnz2-commits/DanceCARD` with `main` as the only remote branch.
+- Added a public-facing `README.md`, a private vulnerability-reporting policy in `SECURITY.md`, and refreshed `AGENTS.md` to match the implemented workspace and commands.
+- Audited the current tree and local history for database URLs, private keys, access keys, CloudBase maintenance tokens, tracked runtime configuration, personal test identities, and machine-generated commit email addresses.
+- Replaced the real administrator identity and previously used OTP value in tracked test/documentation content. The support email remains intentionally public because it is part of the product UI.
+- Published a sanitized current-source snapshot using the GitHub no-reply author address. Earlier development history is preserved only in an ignored local recovery bundle and was not pushed.
+- Confirmed the public tree tracks only placeholder `.env.example` files; real `.env` files and `cloudbaserc.json` remain ignored.
+- Public-release verification passed: formatting, ESLint, workspace TypeScript, 41 unit/component tests, 5 Playwright H5 journeys, H5 production build, WeChat production build, and administrator production build.
+- GitHub publication does not deploy the product. The existing CloudBase development H5 and administrator runtime remain unchanged, and no automatic deployment workflow is configured.
