@@ -29,6 +29,13 @@ The required order is:
 
 Documentation-only changes that do not alter a runtime artifact still require verification, commit, and GitHub push, but do not require redeploying an unchanged CloudBase artifact.
 
+## Bilingual Explanatory Content
+
+- Public-facing explanatory documentation defaults to Chinese first and English second.
+- `README.md` and `SECURITY.md` are the current bilingual public-document baseline.
+- Commands, file paths, code identifiers, and configuration keys remain in their original technical form instead of being duplicated.
+- When user-facing explanatory copy is changed, prefer concise Chinese/English pairs. Short buttons, navigation labels, data values, and space-constrained controls may remain single-language unless the product requirement explicitly asks for both.
+
 ## Sources of Truth
 
 - Product behavior: `memory-bank/Design-Document.md`

@@ -193,3 +193,9 @@ The development MVP and public source publication are complete. The next product
 - Recorded the user's standing instruction in `memory-bank/architecture.md`: “修改这个功能，测试通过后提交并推送到 GitHub，再部署到 CloudBase 开发环境。”
 - Future product-function changes default to local implementation, proportional verification, GitHub commit and push, CloudBase development deployment, and deployed-behavior confirmation unless the user explicitly limits the scope.
 - Documentation-only changes still require verification and GitHub synchronization, but do not redeploy unchanged runtime artifacts.
+
+## Bilingual Public Documentation
+
+- Established Chinese-first, English-second explanatory content as the default for public-facing project documentation.
+- Converted `README.md` and `SECURITY.md` into complete bilingual documents while keeping commands, file paths, identifiers, and configuration keys unchanged.
+- Recorded that concise user-facing explanatory copy should follow the same bilingual pattern when it is changed, while short controls may remain single-language when layout clarity requires it.
