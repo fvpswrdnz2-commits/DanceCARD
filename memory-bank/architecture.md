@@ -13,6 +13,22 @@ Before writing any code, every developer must read these documents in full:
 
 Consult `memory-bank/implementation-plan.md` and `memory-bank/tech-stack.md` for the active step. Update this file after every major feature or milestone.
 
+## Default Delivery Workflow
+
+Unless the user explicitly limits the requested scope, every product-function modification must complete this full delivery chain:
+
+> 修改这个功能，测试通过后提交并推送到 GitHub，再部署到 CloudBase 开发环境。
+
+The required order is:
+
+1. Implement the requested modification locally.
+2. Run tests and builds proportional to the affected surface; do not continue when verification fails.
+3. Commit the verified change and push `main` to the public GitHub repository.
+4. Deploy the verified user app, administrator app, functions, or database changes affected by the modification to the CloudBase development environment.
+5. Confirm the remote commit and deployed development behavior before reporting completion.
+
+Documentation-only changes that do not alter a runtime artifact still require verification, commit, and GitHub push, but do not require redeploying an unchanged CloudBase artifact.
+
 ## Sources of Truth
 
 - Product behavior: `memory-bank/Design-Document.md`
@@ -160,3 +176,4 @@ The development H5 is publicly reachable for product acceptance, but the formal 
 - A recoverable pre-public history bundle exists only in ignored local `work/` storage. It is not a source of truth and must never be pushed to the public remote.
 - Only safe placeholder `.env.example` files are tracked. Real CloudBase configuration, database URLs, SMS credentials, maintenance tokens, administrator identities, and user data remain in ignored local files or managed cloud configuration.
 - GitHub hosts source and collaboration history only. CloudBase remains the runtime platform, and no GitHub-to-CloudBase automatic deployment is configured.
+- Until automatic deployment is intentionally introduced, every verified product-function change follows the Default Delivery Workflow above and is deployed to CloudBase development only after its GitHub push succeeds.

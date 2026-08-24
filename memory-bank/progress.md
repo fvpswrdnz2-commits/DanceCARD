@@ -187,3 +187,9 @@ The development MVP and public source publication are complete. The next product
 - Confirmed the public tree tracks only placeholder `.env.example` files; real `.env` files and `cloudbaserc.json` remain ignored.
 - Public-release verification passed: formatting, ESLint, workspace TypeScript, 41 unit/component tests, 5 Playwright H5 journeys, H5 production build, WeChat production build, and administrator production build.
 - GitHub publication does not deploy the product. The existing CloudBase development H5 and administrator runtime remain unchanged, and no automatic deployment workflow is configured.
+
+## Default Delivery Workflow Decision
+
+- Recorded the user's standing instruction in `memory-bank/architecture.md`: “修改这个功能，测试通过后提交并推送到 GitHub，再部署到 CloudBase 开发环境。”
+- Future product-function changes default to local implementation, proportional verification, GitHub commit and push, CloudBase development deployment, and deployed-behavior confirmation unless the user explicitly limits the scope.
+- Documentation-only changes still require verification and GitHub synchronization, but do not redeploy unchanged runtime artifacts.
