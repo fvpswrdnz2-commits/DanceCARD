@@ -52,7 +52,7 @@ Documentation-only changes that do not alter a runtime artifact still require ve
 apps/user-app/          Taro user app; H5 release and WeChat build target
 apps/admin-web/         React desktop administration app
 packages/domain/        Shared business models and state vocabulary
-packages/validation/    Shared Zod rules for publishing and editing cards
+packages/validation/    Shared Zod rules plus a WeChat-safe portable validator
 packages/api-client/    Transport-neutral API contracts and adapters
 packages/config/        Shared TypeScript configurations
 cloudbase/migrations/   Ordered CloudBase PostgreSQL schema and policy migrations
@@ -66,7 +66,7 @@ The root pnpm workspace owns the only lockfile and dependency installation. Appl
 
 ## Runtime Architecture
 
-- User app: Taro 4.2.1, React 18, TypeScript, Vite 4, NutUI Taro 3.0.18, SCSS, and Zod. H5 is the V1 release; WeChat is build-and-developer-tools-smoke only. Both targets use the same React pages and design system; platform builds are isolated under `apps/user-app/dist/h5` and `apps/user-app/dist/weapp` so one target cannot overwrite the other.
+- User app: Taro 4.2.1, React 18, TypeScript, Vite 4, NutUI Taro 3.0.18, and SCSS. H5 and WeChat use the same React pages and design system; platform builds are isolated under `apps/user-app/dist/h5` and `apps/user-app/dist/weapp` so one target cannot overwrite the other. The Mini Program form uses a dependency-light portable validator because the Zod 4 runtime is incompatible with the tested iPhone Mini Program JavaScript environment.
 - Admin app: React 19, TypeScript, Vite 8, Ant Design 6; desktop Web only.
 - Backend: the paid `dancecard-dev` CloudBase environment in Shanghai provides PostgreSQL, Auth, functions, and storage. Production remains intentionally unconfigured.
 - Shared dependency direction: `config` → `domain` → `validation` / `api-client` → applications. Backend code will consume the same domain and validation packages.
@@ -95,6 +95,7 @@ The root pnpm workspace owns the only lockfile and dependency installation. Appl
 - `apps/*/.env.example`, `cloudfunctions/.env.example`: safe configuration contracts. Real `.env` files are ignored.
 - `packages/domain/src/`: canonical user, identity, location, studio, card, visibility, hidden-reason, and administrator-action types.
 - `packages/validation/src/dance-card.ts`: publish/edit validation, including Shanghai dates, precise RMB prices, text limits, and dance-scope combinations.
+- `packages/validation/src/portable.ts`: equivalent dependency-light edit-form validation for the WeChat runtime; it avoids Zod and `Intl` while preserving the same Shanghai-date and field rules.
 - `cloudbase/migrations/`: append-only schema, indexes, RLS policies, safe views, contact RPC, and secured expiration maintenance in version order.
 - `database/rollbacks/`: one matching rollback file for every migration.
 - `database/seeds/development.sql`: repeatable Beijing/Shanghai location data plus development-only users and cards.
@@ -175,7 +176,7 @@ The administration app is deployed at `https://dancecard-dev-d5g955nph1202e188-1
 
 V1 excludes payment, escrow, transaction guarantees, chat, purchases, sold status, favorites, reports, location, recommendations, ratings, and image upload. Guests browse and may copy one valid seller contact without login. Sellers use SMS-code login. Administrators manage locations, studios, users, and noncompliant listings in the separate protected app.
 
-The development H5 is publicly reachable for product acceptance, but the formal production environment and custom domain are not configured. The WeChat target builds successfully and passed a WeChat Developer Tools simulator smoke on 2026-08-28 for city, district, studio, empty-card, protected publish/login, and FAQ routes against the real development backend. Its development CloudBase gateway is registered as a legal request domain, but the Mini Program is not submitted, published, or accepted on a real device in V1. Privacy policy, user agreement, production configuration, a production-grade custom domain, and professional legal review remain required before formal public launch.
+The development H5 is publicly reachable for product acceptance, but the formal production environment and custom domain are not configured. The WeChat target passed Developer Tools and real-device acceptance on 2026-08-28 for browsing, protected phone login, publishing, editing, and FAQ routes against the real development backend. Its development CloudBase gateway is registered as a legal request domain, but the Mini Program is not submitted or published. Privacy policy, user agreement, production configuration, a production-grade custom domain, and professional legal review remain required before formal public launch.
 
 ## Git Baseline
 

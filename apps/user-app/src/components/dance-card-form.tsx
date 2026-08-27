@@ -1,12 +1,13 @@
 import {
-  createDanceCardEditSchema,
-  getShanghaiDate,
-  type DanceCardEditData,
-} from '@dancecard/validation';
+  getPortableShanghaiDate,
+  type PortableDanceCardEditData,
+  validatePortableDanceCardEdit,
+} from '@dancecard/validation/portable';
 import {
   Button,
   Checkbox,
   CheckboxGroup,
+  Form,
   Input,
   Label,
   Picker,
@@ -14,6 +15,7 @@ import {
   Textarea,
   View,
 } from '@tarojs/components';
+import Taro from '@tarojs/taro';
 import { useState } from 'react';
 
 const DANCE_OPTIONS = [
@@ -42,12 +44,25 @@ export interface DanceCardFormInitialValues {
 
 interface DanceCardFormProps {
   initialValues?: DanceCardFormInitialValues;
-  onSubmit(values: DanceCardEditData): Promise<void>;
+  onSubmit(values: PortableDanceCardEditData): Promise<void>;
   studioName: string;
   submitLabel: string;
 }
 
 type FieldErrors = Record<string, string>;
+type SubmitPhase = 'checking' | 'idle' | 'saving';
+
+async function showSubmitError(message: string) {
+  try {
+    await Taro.showModal({
+      title: '无法提交',
+      content: message,
+      showCancel: false,
+    });
+  } catch {
+    // Inline field errors remain visible if the platform dialog cannot open.
+  }
+}
 
 export function DanceCardForm({
   initialValues = {},
@@ -59,7 +74,9 @@ export function DanceCardForm({
   const [wechatId, setWechatId] = useState(initialValues.wechatId || '');
   const [remainingCount, setRemainingCount] = useState(initialValues.remainingCount || '');
   const [price, setPrice] = useState(initialValues.pricePerClass || '');
-  const [expireDate, setExpireDate] = useState(initialValues.expireDate || getShanghaiDate());
+  const [expireDate, setExpireDate] = useState(
+    initialValues.expireDate || getPortableShanghaiDate(),
+  );
   const [danceScope, setDanceScope] = useState<'all' | 'specified'>(
     initialValues.danceScope || 'all',
   );
@@ -68,7 +85,8 @@ export function DanceCardForm({
   const [usageRestrictions, setUsageRestrictions] = useState(initialValues.usageRestrictions || '');
   const [description, setDescription] = useState(initialValues.description || '');
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [submitting, setSubmitting] = useState(false);
+  const [submitPhase, setSubmitPhase] = useState<SubmitPhase>('idle');
+  const submitting = submitPhase !== 'idle';
 
   const chooseScope = (scope: 'all' | 'specified') => {
     setDanceScope(scope);
@@ -79,41 +97,51 @@ export function DanceCardForm({
   };
 
   const submit = async () => {
-    const result = createDanceCardEditSchema().safeParse({
-      danceScope,
-      danceTypeOther: danceTypeOther || null,
-      danceTypes,
-      description,
-      expireDate,
-      pricePerClass: price,
-      remainingCount,
-      sellerNickname: nickname,
-      usageRestrictions,
-      wechatId,
-    });
-    if (!result.success) {
-      const nextErrors: FieldErrors = {};
-      for (const issue of result.error.issues) {
-        const field = String(issue.path[0] || 'form');
-        nextErrors[field] ||= issue.message;
-      }
-      setErrors(nextErrors);
-      return;
-    }
+    if (submitting) return;
 
-    setSubmitting(true);
-    setErrors({});
+    let stage = '表单校验';
+    setSubmitPhase('checking');
     try {
+      const result = validatePortableDanceCardEdit({
+        danceScope,
+        danceTypeOther: danceTypeOther || null,
+        danceTypes,
+        description,
+        expireDate,
+        pricePerClass: price,
+        remainingCount,
+        sellerNickname: nickname,
+        usageRestrictions,
+        wechatId,
+      });
+      if (!result.success) {
+        const nextErrors: FieldErrors = {};
+        for (const issue of result.issues) {
+          const field = String(issue.path[0] || 'form');
+          nextErrors[field] ||= issue.message;
+        }
+        setErrors(nextErrors);
+        await showSubmitError(result.issues[0]?.message || '请检查表单内容');
+        return;
+      }
+
+      setErrors({});
+      stage = '数据库写入';
+      setSubmitPhase('saving');
       await onSubmit(result.data);
     } catch (reason) {
-      setErrors({ form: reason instanceof Error ? reason.message : '保存失败，请稍后重试' });
+      console.error(`[DanceCARD] ${stage}失败`, reason);
+      const detail = reason instanceof Error ? reason.message : '保存失败，请稍后重试';
+      const message = `${stage}失败：${detail}`;
+      setErrors({ form: message });
+      await showSubmitError(message);
     } finally {
-      setSubmitting(false);
+      setSubmitPhase('idle');
     }
   };
 
   return (
-    <View className='content-card form-card'>
+    <Form className='content-card form-card' onSubmit={() => void submit()}>
       <Text className='field-label'>舞室</Text>
       <View className='readonly-field'>{studioName}</View>
 
@@ -161,7 +189,7 @@ export function DanceCardForm({
       <Picker
         end='2099-12-31'
         mode='date'
-        start={getShanghaiDate()}
+        start={getPortableShanghaiDate()}
         value={expireDate}
         onChange={(event) => setExpireDate(String(event.detail.value))}
       >
@@ -236,9 +264,13 @@ export function DanceCardForm({
         提交即表示你理解：DanceCARD
         无法验证信息真实性，不参与付款、核销或纠纷处理，也不对线下交易承担责任。
       </View>
-      <Button className='primary-button' disabled={submitting} onClick={submit}>
-        {submitting ? '正在保存…' : submitLabel}
+      <Button className='primary-button' disabled={submitting} formType='submit'>
+        {submitPhase === 'checking'
+          ? '正在检查…'
+          : submitPhase === 'saving'
+            ? '正在保存…'
+            : submitLabel}
       </Button>
-    </View>
+    </Form>
   );
 }

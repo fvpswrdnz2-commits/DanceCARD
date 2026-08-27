@@ -209,3 +209,11 @@ The development MVP and public source publication are complete. The next product
 - Refreshed Developer Tools domain metadata and recompiled with `urlCheck` enabled; the home page loaded its real city data without new console errors, confirming strict legal-domain validation succeeds.
 - On 2026-08-28 the simulator manually passed “北京 → 朝阳区 → 嘉禾舞社专业班（北京平房桥店） → empty card list → 添加次卡 → 手机号登录” plus FAQ navigation, with no console errors. Remaining console notices are upstream WeChat/Taro compatibility and preload warnings.
 - Regression verification passed: scoped formatting, ESLint, workspace TypeScript, 41 unit/component tests, 5 H5 Playwright journeys, H5 production build, and WeChat production build.
+
+## WeChat Seller Write Compatibility
+
+- Enabled Mini Program JavaScript/WXML/WXSS compression and `requiredComponents` lazy loading; the Developer Tools quality scan passed afterward.
+- Replaced the shared card form's direct click handler with native Mini Program form submission, added visible checking/saving states, and surfaced validation or database failures in a platform dialog.
+- Real-device testing isolated `c is not a function` to Zod 4 execution during client-side form validation on iPhone. Added a dependency-light portable validator that preserves nickname, WeChat ID, class count, RMB precision, Shanghai-date, dance-scope, and optional-text rules without Zod or `Intl`.
+- The WeChat bundle no longer contains Zod, and the verified production build dropped from 242 to 162 transformed modules. Portable validation has 28 passing package tests together with 11 passing user-app tests, strict TypeScript, ESLint, and the WeChat production build.
+- On 2026-08-28 the user confirmed real-device card publication succeeds. The same shared form and portable validator cover editing from “我的次卡”.

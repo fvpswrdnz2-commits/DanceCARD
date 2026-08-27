@@ -7,6 +7,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./portable": {
+      "types": "./src/portable.ts",
+      "default": "./src/portable.ts"
     }
   },
   "scripts": {
