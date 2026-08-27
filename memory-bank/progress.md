@@ -199,3 +199,12 @@ The development MVP and public source publication are complete. The next product
 - Established Chinese-first, English-second explanatory content as the default for public-facing project documentation.
 - Converted `README.md` and `SECURITY.md` into complete bilingual documents while keeping commands, file paths, identifiers, and configuration keys unchanged.
 - Recorded that concise user-facing explanatory copy should follow the same bilingual pattern when it is changed, while short controls may remain single-language when layout clarity requires it.
+
+## WeChat Mini Program Developer Tools Smoke
+
+- Connected the existing Taro user app to the registered DanceCARD Mini Program AppID `wx8c38c9226b715a39`; the previous native QuickStart and `cloud1` environment remain connectivity proof rather than the product backend.
+- Split Taro output by target into `dist/h5` and `dist/weapp`, and pointed WeChat Developer Tools at `dist/weapp`, preventing an H5 watch/build from replacing the Mini Program artifact.
+- Kept the existing dark editorial React frontend and the independent `dancecard-dev` CloudBase PostgreSQL/Auth backend shared by H5 and WeChat.
+- Diagnosed the initial simulator request failure as WeChat Developer Tools legal-domain enforcement, disabled that check for local development smoke, and confirmed that cities load from the real backend. Formal preview/release still requires the gateway domain to be registered in the WeChat Mini Program console.
+- On 2026-08-28 the simulator manually passed “北京 → 朝阳区 → 嘉禾舞社专业班（北京平房桥店） → empty card list → 添加次卡 → 手机号登录” plus FAQ navigation, with no console errors. Remaining console notices are upstream WeChat/Taro compatibility and preload warnings.
+- Regression verification passed: scoped formatting, ESLint, workspace TypeScript, 41 unit/component tests, 5 H5 Playwright journeys, H5 production build, and WeChat production build.

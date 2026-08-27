@@ -66,7 +66,7 @@ The root pnpm workspace owns the only lockfile and dependency installation. Appl
 
 ## Runtime Architecture
 
-- User app: Taro 4.2.1, React 18, TypeScript, Vite 4, NutUI Taro 3.0.18, SCSS, and Zod. H5 is the V1 release; WeChat is build-and-developer-tools-smoke only.
+- User app: Taro 4.2.1, React 18, TypeScript, Vite 4, NutUI Taro 3.0.18, SCSS, and Zod. H5 is the V1 release; WeChat is build-and-developer-tools-smoke only. Both targets use the same React pages and design system; platform builds are isolated under `apps/user-app/dist/h5` and `apps/user-app/dist/weapp` so one target cannot overwrite the other.
 - Admin app: React 19, TypeScript, Vite 8, Ant Design 6; desktop Web only.
 - Backend: the paid `dancecard-dev` CloudBase environment in Shanghai provides PostgreSQL, Auth, functions, and storage. Production remains intentionally unconfigured.
 - Shared dependency direction: `config` → `domain` → `validation` / `api-client` → applications. Backend code will consume the same domain and validation packages.
@@ -77,7 +77,8 @@ The root pnpm workspace owns the only lockfile and dependency installation. Appl
 - `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`: workspace commands, package discovery, and deterministic dependency graph.
 - `.nvmrc`: supported local Node baseline (`24.19.0`); root engines allow Node 22–24 and pnpm 11.
 - `.eslintrc.cjs`, `.prettierrc.json`, `.prettierignore`: repository code quality rules. `apps/user-app/src/index.html` is intentionally excluded because Taro requires an exact one-line entry placeholder.
-- `apps/user-app/config/`: Taro multi-target build configuration.
+- `apps/user-app/config/`: Taro multi-target build configuration, including target-specific output directories.
+- `apps/user-app/project.config.json`: WeChat Developer Tools project metadata for DanceCARD AppID `wx8c38c9226b715a39`, with `dist/weapp` as the mini-program root. Local Developer Tools URL checks are disabled for development smoke testing; formal preview and release still require the CloudBase gateway to be registered as a legal request domain in the WeChat Mini Program console.
 - `apps/user-app/src/index.html`: H5 shell; the exact `htmlWebpackPlugin.options.script` placeholder is replaced by Taro's Vite plugin.
 - `apps/user-app/src/config/environment.ts`: pure public-environment parser and clear validation errors.
 - `apps/user-app/src/config/runtime-environment.ts`: binds Taro-prefixed runtime variables to that parser.
@@ -104,7 +105,7 @@ The root pnpm workspace owns the only lockfile and dependency installation. Appl
 - `SECURITY.md`: private vulnerability-reporting route and tracked-secret policy.
 - `AGENTS.md` and `CLAUDE.md`: contributor and AI-maintainer guardrails.
 
-Generated `dist/`, test reports, dependencies, local CloudBase state, and local environment files are ignored and are not architecture sources.
+Generated `dist/h5`, `dist/weapp`, test reports, dependencies, local CloudBase state, and local environment files are ignored and are not architecture sources.
 
 ## Commands and Verification
 
@@ -160,6 +161,8 @@ City, district, or studio additions remain administrator-managed. The studio lis
 
 The development H5 is currently deployed at `https://dancecard-dev-d5g955nph1202e188-1472887055.tcloudbaseapp.com`. This URL is development verification infrastructure, not the formal V1 production release.
 
+The registered WeChat Mini Program uses AppID `wx8c38c9226b715a39`. Its earlier native QuickStart project and `cloud1` environment remain environment-connectivity proof only. The product build continues to use the existing independent `dancecard-dev` CloudBase PostgreSQL/Auth backend so the H5 and Mini Program share one business data source and the same access policies.
+
 ## Implemented Seller and Administrator Flows
 
 Phone OTP creates a CloudBase Auth session and an independently keyed DanceCARD business profile. A verified normal user retains the session while awaiting administrator authorization, so the first administrator can be promoted once without requesting a second OTP. The first active administrator was initialized manually and the dashboard role guard was verified against the deployed environment.
@@ -172,7 +175,7 @@ The administration app is deployed at `https://dancecard-dev-d5g955nph1202e188-1
 
 V1 excludes payment, escrow, transaction guarantees, chat, purchases, sold status, favorites, reports, location, recommendations, ratings, and image upload. Guests browse and may copy one valid seller contact without login. Sellers use SMS-code login. Administrators manage locations, studios, users, and noncompliant listings in the separate protected app.
 
-The development H5 is publicly reachable for product acceptance, but the formal production environment and domain are not configured. The WeChat target builds successfully but has not been opened in WeChat Developer Tools because that application is unavailable in the current environment; it is not submitted, published, or accepted on a real device in V1. Privacy policy, user agreement, production configuration, and professional legal review remain required before formal public launch.
+The development H5 is publicly reachable for product acceptance, but the formal production environment and domain are not configured. The WeChat target builds successfully and passed a WeChat Developer Tools simulator smoke on 2026-08-28 for city, district, studio, empty-card, protected publish/login, and FAQ routes against the real development backend. It is not submitted, published, or accepted on a real device in V1. The CloudBase gateway legal request domain, privacy policy, user agreement, production configuration, and professional legal review remain required before formal public launch.
 
 ## Git Baseline
 

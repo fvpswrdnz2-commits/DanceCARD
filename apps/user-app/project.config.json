@@ -1,10 +1,10 @@
 {
-  "miniprogramRoot": "./dist",
-  "projectname": "user-app",
+  "miniprogramRoot": "./dist/weapp",
+  "projectname": "DanceCard",
   "description": "DanceCARD cross-platform user application",
-  "appid": "touristappid",
+  "appid": "wx8c38c9226b715a39",
   "setting": {
-    "urlCheck": true,
+    "urlCheck": false,
     "es6": false,
     "enhance": false,
     "compileHotReLoad": false,
