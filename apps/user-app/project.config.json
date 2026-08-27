@@ -4,7 +4,7 @@
   "description": "DanceCARD cross-platform user application",
   "appid": "wx8c38c9226b715a39",
   "setting": {
-    "urlCheck": false,
+    "urlCheck": true,
     "es6": false,
     "enhance": false,
     "compileHotReLoad": false,

@@ -78,7 +78,7 @@ The root pnpm workspace owns the only lockfile and dependency installation. Appl
 - `.nvmrc`: supported local Node baseline (`24.19.0`); root engines allow Node 22–24 and pnpm 11.
 - `.eslintrc.cjs`, `.prettierrc.json`, `.prettierignore`: repository code quality rules. `apps/user-app/src/index.html` is intentionally excluded because Taro requires an exact one-line entry placeholder.
 - `apps/user-app/config/`: Taro multi-target build configuration, including target-specific output directories.
-- `apps/user-app/project.config.json`: WeChat Developer Tools project metadata for DanceCARD AppID `wx8c38c9226b715a39`, with `dist/weapp` as the mini-program root. Local Developer Tools URL checks are disabled for development smoke testing; formal preview and release still require the CloudBase gateway to be registered as a legal request domain in the WeChat Mini Program console.
+- `apps/user-app/project.config.json`: WeChat Developer Tools project metadata for DanceCARD AppID `wx8c38c9226b715a39`, with `dist/weapp` as the mini-program root and legal-domain checks enabled. The development CloudBase gateway is registered as a legal request domain in the WeChat Mini Program console.
 - `apps/user-app/src/index.html`: H5 shell; the exact `htmlWebpackPlugin.options.script` placeholder is replaced by Taro's Vite plugin.
 - `apps/user-app/src/config/environment.ts`: pure public-environment parser and clear validation errors.
 - `apps/user-app/src/config/runtime-environment.ts`: binds Taro-prefixed runtime variables to that parser.
@@ -175,7 +175,7 @@ The administration app is deployed at `https://dancecard-dev-d5g955nph1202e188-1
 
 V1 excludes payment, escrow, transaction guarantees, chat, purchases, sold status, favorites, reports, location, recommendations, ratings, and image upload. Guests browse and may copy one valid seller contact without login. Sellers use SMS-code login. Administrators manage locations, studios, users, and noncompliant listings in the separate protected app.
 
-The development H5 is publicly reachable for product acceptance, but the formal production environment and domain are not configured. The WeChat target builds successfully and passed a WeChat Developer Tools simulator smoke on 2026-08-28 for city, district, studio, empty-card, protected publish/login, and FAQ routes against the real development backend. It is not submitted, published, or accepted on a real device in V1. The CloudBase gateway legal request domain, privacy policy, user agreement, production configuration, and professional legal review remain required before formal public launch.
+The development H5 is publicly reachable for product acceptance, but the formal production environment and custom domain are not configured. The WeChat target builds successfully and passed a WeChat Developer Tools simulator smoke on 2026-08-28 for city, district, studio, empty-card, protected publish/login, and FAQ routes against the real development backend. Its development CloudBase gateway is registered as a legal request domain, but the Mini Program is not submitted, published, or accepted on a real device in V1. Privacy policy, user agreement, production configuration, a production-grade custom domain, and professional legal review remain required before formal public launch.
 
 ## Git Baseline
 

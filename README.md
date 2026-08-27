@@ -8,9 +8,9 @@ DanceCARD is a mobile-first information exchange tool for unused dance-studio cl
 
 ## 项目状态 / Current Status
 
-游客、卖家和管理员的 MVP 流程已经在 CloudBase 开发环境中实现。V1 以 H5 为正式发布目标；微信小程序目前可以成功构建并已通过开发者工具模拟器冒烟测试，但尚未提交或发布。正式公开上线前仍需准备生产环境、自定义域名及小程序合法请求域名、隐私政策、用户协议及专业法律审阅。
+游客、卖家和管理员的 MVP 流程已经在 CloudBase 开发环境中实现。V1 以 H5 为正式发布目标；微信小程序目前可以成功构建、已配置开发接口合法请求域名并通过开发者工具模拟器冒烟测试，但尚未提交或发布。正式公开上线前仍需准备生产环境及生产级自定义域名、隐私政策、用户协议及专业法律审阅。
 
-The guest, seller, and administrator MVP flows are implemented in a CloudBase development environment. H5 is the V1 release target. The WeChat Mini Program target builds successfully and has passed a Developer Tools simulator smoke test, but is not submitted or released. A production environment, custom and Mini Program legal request domains, privacy policy, user agreement, and professional legal review are still required before formal public launch.
+The guest, seller, and administrator MVP flows are implemented in a CloudBase development environment. H5 is the V1 release target. The WeChat Mini Program target builds successfully, has a registered development request domain, and has passed a Developer Tools simulator smoke test, but is not submitted or released. A production environment and production-grade custom domain, privacy policy, user agreement, and professional legal review are still required before formal public launch.
 
 ## 技术架构 / Architecture
 
