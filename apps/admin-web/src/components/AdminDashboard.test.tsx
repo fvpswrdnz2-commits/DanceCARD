@@ -6,7 +6,6 @@ vi.mock('../services/cloudbase', () => ({
   adminApi: {
     listCards: vi.fn().mockResolvedValue([]),
     listCities: vi.fn().mockResolvedValue([]),
-    listDistricts: vi.fn().mockResolvedValue([]),
     listLogs: vi.fn().mockResolvedValue([]),
     listStudios: vi.fn().mockResolvedValue([]),
     listUsers: vi.fn().mockResolvedValue([]),
@@ -30,7 +29,7 @@ describe('AdminDashboard', () => {
     );
 
     expect(await screen.findByRole('tab', { name: '城市' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: '行政区' })).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: '行政区' })).not.toBeInTheDocument();
     expect(screen.getByRole('tab', { name: '舞室' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: '次卡内容' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: '用户' })).toBeInTheDocument();

@@ -2,7 +2,6 @@ import type {
   AdminActionLog,
   AdminCity,
   AdminDanceCard,
-  AdminDistrict,
   AdminStudio,
   AdminUser,
   SellerProfile,
@@ -95,117 +94,22 @@ function CitiesPanel({ onChanged }: { onChanged(): Promise<void> }) {
   );
 }
 
-function DistrictsPanel({
-  cities,
-  onChanged,
-}: {
-  cities: AdminCity[];
-  onChanged(): Promise<void>;
-}) {
-  const [items, setItems] = useState<AdminDistrict[]>([]);
-  const [editing, setEditing] = useState<Partial<AdminDistrict> | null>(null);
-  const [cityFilter, setCityFilter] = useState<string>();
-  const [form] = Form.useForm();
-  const load = useCallback(() => adminApi.listDistricts().then(setItems), []);
-  useEffect(() => void load(), [load]);
-  const visible = cityFilter ? items.filter((item) => item.cityId === cityFilter) : items;
-  const open = (item?: AdminDistrict) => {
-    const value = item || {
-      cityId: cityFilter || cities[0]?.id,
-      name: '',
-      sortOrder: 10,
-      status: 'active' as Status,
-    };
-    setEditing(value);
-    form.setFieldsValue(value);
-  };
-  const save = async () => {
-    const values = await form.validateFields();
-    await adminApi.saveDistrict({ ...values, id: editing?.id });
-    message.success('行政区已保存');
-    setEditing(null);
-    await load();
-    await onChanged();
-  };
-  return (
-    <Card title='行政区管理' extra={<Button onClick={() => open()}>新增行政区</Button>}>
-      <Select
-        allowClear
-        placeholder='按城市筛选'
-        value={cityFilter}
-        onChange={setCityFilter}
-        options={cities.map((item) => ({ value: item.id, label: item.name }))}
-        className='panel-filter'
-      />
-      <Table
-        rowKey='id'
-        pagination={{ pageSize: 20 }}
-        dataSource={visible}
-        columns={[
-          { title: '行政区', dataIndex: 'name' },
-          {
-            title: '城市',
-            dataIndex: 'cityId',
-            render: (id) => cities.find((item) => item.id === id)?.name || id,
-          },
-          { title: '状态', dataIndex: 'status', render: statusTag },
-          { title: '操作', render: (_, item) => <Button onClick={() => open(item)}>编辑</Button> },
-        ]}
-      />
-      <Modal
-        open={Boolean(editing)}
-        title='保存行政区'
-        onOk={save}
-        onCancel={() => setEditing(null)}
-      >
-        <Form form={form} layout='vertical'>
-          <Form.Item name='cityId' label='城市' rules={[{ required: true }]}>
-            <Select options={cities.map((item) => ({ value: item.id, label: item.name }))} />
-          </Form.Item>
-          <Form.Item name='name' label='行政区名称' rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name='sortOrder' label='排序' rules={[{ required: true }]}>
-            <InputNumber min={0} />
-          </Form.Item>
-          <Form.Item name='status' label='状态' rules={[{ required: true }]}>
-            <Select
-              options={[
-                { value: 'active', label: '启用' },
-                { value: 'inactive', label: '停用（下级内容停止公开）' },
-              ]}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </Card>
-  );
-}
-
 function normalizeStudioName(value: string) {
   return value.toLocaleLowerCase().replace(/[\s\p{P}\p{S}]/gu, '');
 }
 
-function StudiosPanel({
-  districts,
-  onChanged,
-}: {
-  districts: AdminDistrict[];
-  onChanged(): Promise<void>;
-}) {
+function StudiosPanel({ cities, onChanged }: { cities: AdminCity[]; onChanged(): Promise<void> }) {
   const [items, setItems] = useState<AdminStudio[]>([]);
   const [editing, setEditing] = useState<Partial<AdminStudio> | null>(null);
-  const [districtFilter, setDistrictFilter] = useState<string>();
+  const [cityFilter, setCityFilter] = useState<string>();
   const [form] = Form.useForm();
   const load = useCallback(() => adminApi.listStudios().then(setItems), []);
   useEffect(() => void load(), [load]);
-  const visible = districtFilter
-    ? items.filter((item) => item.districtId === districtFilter)
-    : items;
+  const visible = cityFilter ? items.filter((item) => item.cityId === cityFilter) : items;
   const open = (item?: AdminStudio) => {
     const value = item || {
-      address: '',
-      districtId: districtFilter || districts[0]?.id,
+      branchInfo: '',
+      cityId: cityFilter || cities[0]?.id,
       name: '',
       status: 'active' as Status,
     };
@@ -222,11 +126,9 @@ function StudiosPanel({
   const save = async () => {
     const values = await form.validateFields();
     const normalized = normalizeStudioName(values.name);
-    const peers = items.filter(
-      (item) => item.id !== editing?.id && item.districtId === values.districtId,
-    );
+    const peers = items.filter((item) => item.id !== editing?.id && item.cityId === values.cityId);
     if (peers.some((item) => normalizeStudioName(item.name) === normalized)) {
-      message.error('同一行政区已存在标准化名称完全相同的舞室');
+      message.error('同一城市已存在标准化名称完全相同的舞室');
       return;
     }
     const similar = peers.filter((item) => {
@@ -249,10 +151,10 @@ function StudiosPanel({
         showSearch
         allowClear
         optionFilterProp='label'
-        placeholder='按行政区筛选'
-        value={districtFilter}
-        onChange={setDistrictFilter}
-        options={districts.map((item) => ({ value: item.id, label: item.name }))}
+        placeholder='按城市筛选'
+        value={cityFilter}
+        onChange={setCityFilter}
+        options={cities.map((item) => ({ value: item.id, label: item.name }))}
         className='panel-filter'
       />
       <Table
@@ -262,29 +164,29 @@ function StudiosPanel({
         columns={[
           { title: '舞室', dataIndex: 'name' },
           {
-            title: '行政区',
-            dataIndex: 'districtId',
-            render: (id) => districts.find((item) => item.id === id)?.name || id,
+            title: '城市',
+            dataIndex: 'cityId',
+            render: (id) => cities.find((item) => item.id === id)?.name || id,
           },
-          { title: '地址', dataIndex: 'address' },
+          { title: '通用分店', dataIndex: 'branchInfo' },
           { title: '状态', dataIndex: 'status', render: statusTag },
           { title: '操作', render: (_, item) => <Button onClick={() => open(item)}>编辑</Button> },
         ]}
       />
       <Modal open={Boolean(editing)} title='保存舞室' onOk={save} onCancel={() => setEditing(null)}>
         <Form form={form} layout='vertical'>
-          <Form.Item name='districtId' label='行政区' rules={[{ required: true }]}>
+          <Form.Item name='cityId' label='城市' rules={[{ required: true }]}>
             <Select
               showSearch
               optionFilterProp='label'
-              options={districts.map((item) => ({ value: item.id, label: item.name }))}
+              options={cities.map((item) => ({ value: item.id, label: item.name }))}
             />
           </Form.Item>
           <Form.Item name='name' label='舞室名称' rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name='address' label='地址'>
-            <Input />
+          <Form.Item name='branchInfo' label='通用分店信息'>
+            <Input.TextArea rows={3} placeholder='可填写分店名称或地址；留空表示暂未维护' />
           </Form.Item>
           <Form.Item name='status' label='状态' rules={[{ required: true }]}>
             <Select
@@ -563,16 +465,13 @@ export function AdminDashboard({
   onSignedOut(): void;
 }) {
   const [cities, setCities] = useState<AdminCity[]>([]);
-  const [districts, setDistricts] = useState<AdminDistrict[]>([]);
   const [studios, setStudios] = useState<AdminStudio[]>([]);
   const refreshReferenceData = useCallback(async () => {
-    const [nextCities, nextDistricts, nextStudios] = await Promise.all([
+    const [nextCities, nextStudios] = await Promise.all([
       adminApi.listCities(),
-      adminApi.listDistricts(),
       adminApi.listStudios(),
     ]);
     setCities(nextCities);
-    setDistricts(nextDistricts);
     setStudios(nextStudios);
   }, []);
   useEffect(() => {
@@ -586,20 +485,15 @@ export function AdminDashboard({
         children: <CitiesPanel onChanged={refreshReferenceData} />,
       },
       {
-        key: 'districts',
-        label: '行政区',
-        children: <DistrictsPanel cities={cities} onChanged={refreshReferenceData} />,
-      },
-      {
         key: 'studios',
         label: '舞室',
-        children: <StudiosPanel districts={districts} onChanged={refreshReferenceData} />,
+        children: <StudiosPanel cities={cities} onChanged={refreshReferenceData} />,
       },
       { key: 'cards', label: '次卡内容', children: <CardsPanel studios={studios} /> },
       { key: 'users', label: '用户', children: <UsersPanel /> },
       { key: 'logs', label: '审计日志', children: <LogsPanel /> },
     ],
-    [cities, districts, refreshReferenceData, studios],
+    [cities, refreshReferenceData, studios],
   );
   return (
     <Layout className='admin-shell'>
@@ -625,7 +519,7 @@ export function AdminDashboard({
         <Alert
           showIcon
           type='info'
-          title='停用城市、行政区、舞室或用户后，关联次卡立即停止公开，但数据不会自动删除。'
+          title='停用城市、舞室或用户后，关联次卡立即停止公开，但数据不会自动删除。'
         />
         <Tabs items={tabs} className='admin-tabs' />
       </Layout.Content>

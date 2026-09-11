@@ -31,7 +31,7 @@ export default function CitiesPage() {
             role='button'
             onClick={() =>
               Taro.navigateTo({
-                url: `/pages/districts/index?cityId=${encodeURIComponent(city.id)}&cityName=${encodeURIComponent(city.name)}`,
+                url: `/pages/studios/index?cityId=${encodeURIComponent(city.id)}&cityName=${encodeURIComponent(city.name)}`,
               })
             }
           >

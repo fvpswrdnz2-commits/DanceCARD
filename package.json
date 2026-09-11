@@ -1,6 +1,6 @@
 {
   "name": "dancecard",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "description": "DanceCARD mobile H5, WeChat Mini Program build, administration app, and CloudBase backend",
   "packageManager": "pnpm@11.19.0",

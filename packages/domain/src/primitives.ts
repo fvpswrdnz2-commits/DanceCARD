@@ -7,7 +7,6 @@ export type Brand<Value, Name extends string> = Value & {
 export type UserId = Brand<string, 'UserId'>;
 export type UserIdentityId = Brand<string, 'UserIdentityId'>;
 export type CityId = Brand<string, 'CityId'>;
-export type DistrictId = Brand<string, 'DistrictId'>;
 export type StudioId = Brand<string, 'StudioId'>;
 export type DanceCardId = Brand<string, 'DanceCardId'>;
 export type AdminActionLogId = Brand<string, 'AdminActionLogId'>;

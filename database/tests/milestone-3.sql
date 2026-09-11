@@ -4,7 +4,6 @@ do $$
 declare
   beijing_id uuid;
   shanghai_id uuid;
-  chaoyang_id uuid;
   studio_id uuid;
   duplicate_blocked boolean := false;
   invalid_fk_blocked boolean := false;
@@ -12,41 +11,39 @@ declare
 begin
   select id into beijing_id from public.cities where normalized_name = '北京';
   select id into shanghai_id from public.cities where normalized_name = '上海';
-  select district.id into chaoyang_id
-  from public.districts as district
-  where district.city_id = beijing_id and district.normalized_name = '朝阳区';
-  select id into studio_id from public.studios where normalized_name = public.normalize_studio_name('嘉禾舞社北京国贸店');
+  select id into studio_id from public.studios
+  where city_id = beijing_id and normalized_name = public.normalize_studio_name('嘉禾舞社');
 
   begin
-    insert into public.districts (city_id, name) values (gen_random_uuid(), '无效区域');
+    insert into public.studios (city_id, name, status, created_by)
+    values (gen_random_uuid(), '无效城市舞室', 'inactive', '00000000-0000-4000-8000-000000000001');
   exception when foreign_key_violation then
     invalid_fk_blocked := true;
   end;
   if not invalid_fk_blocked then raise exception 'invalid city foreign key was accepted'; end if;
 
   begin
-    insert into public.districts (city_id, name) values (beijing_id, '朝阳区');
+    insert into public.studios (city_id, name, status, created_by)
+    values (beijing_id, ' 嘉禾-舞社 ', 'inactive', '00000000-0000-4000-8000-000000000001');
   exception when unique_violation then
     duplicate_blocked := true;
   end;
-  if not duplicate_blocked then raise exception 'same-city duplicate district was accepted'; end if;
+  if not duplicate_blocked then raise exception 'same-city duplicate studio was accepted'; end if;
 
-  insert into public.districts (city_id, name, status, sort_order)
-  values (shanghai_id, '测试同名区', 'inactive', 999);
-  insert into public.districts (city_id, name, status, sort_order)
-  values (beijing_id, '测试同名区', 'inactive', 999);
+  insert into public.studios (city_id, name, status, created_by)
+  values (shanghai_id, '测试同名舞室', 'inactive', '00000000-0000-4000-8000-000000000001');
+  insert into public.studios (city_id, name, status, created_by)
+  values (beijing_id, '测试同名舞室', 'inactive', '00000000-0000-4000-8000-000000000001');
 
-  duplicate_blocked := false;
-  begin
-    insert into public.studios (district_id, name, status, created_by)
-    values (chaoyang_id, ' 嘉禾舞社-北京国贸店 ', 'inactive', '00000000-0000-4000-8000-000000000001');
-  exception when unique_violation then
-    duplicate_blocked := true;
-  end;
-  if not duplicate_blocked then raise exception 'normalized duplicate studio was accepted'; end if;
+  if exists (
+    select 1 from information_schema.tables
+    where table_schema = 'public' and table_name = 'districts'
+  ) then raise exception 'district search layer still exists in DanceCARD 2.0'; end if;
 
-  insert into public.studios (district_id, name, status, created_by)
-  values (chaoyang_id, '嘉禾舞社北京国贸新馆', 'inactive', '00000000-0000-4000-8000-000000000001');
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'studios' and column_name = 'city_id'
+  ) then raise exception 'studio is not directly linked to a city'; end if;
 
   begin
     insert into public.dance_cards (
@@ -121,7 +118,7 @@ begin
   end if;
 
   select id into studio_id from public.studios
-  where normalized_name = public.normalize_studio_name('CASTER舞蹈教室（上海大悦城南座店）');
+  where normalized_name = public.normalize_studio_name('CASTER舞蹈教室');
 
   insert into public.dance_cards (
     studio_id, seller_nickname, wechat_id, remaining_count, price_per_class,
@@ -212,7 +209,6 @@ reset role;
 do $$
 declare
   shanghai_id uuid;
-  district_id uuid;
   studio_id uuid;
   valid_card_id uuid := '10000000-0000-4000-8000-000000000001';
   hidden_card_id uuid := '10000000-0000-4000-8000-000000000004';
@@ -223,8 +219,8 @@ declare
 begin
   select id into shanghai_id from public.cities where normalized_name = '上海';
   select id into studio_id from public.studios
-  where normalized_name = public.normalize_studio_name('CASTER舞蹈教室（上海大悦城南座店）');
-  select studio.district_id into district_id from public.studios as studio where studio.id = studio_id;
+  where city_id = shanghai_id
+    and normalized_name = public.normalize_studio_name('CASTER舞蹈教室');
 
   if (select wechat_id from public.get_dance_card_contact(valid_card_id)) <> 'dancecard-dev-user' then
     raise exception 'valid public contact was not returned';
@@ -238,12 +234,6 @@ begin
     raise exception 'contact remained visible while city inactive';
   end if;
   update public.cities set status = 'active' where id = shanghai_id;
-
-  update public.districts set status = 'inactive' where id = district_id;
-  if exists (select 1 from public.get_dance_card_contact(valid_card_id)) then
-    raise exception 'contact remained visible while district inactive';
-  end if;
-  update public.districts set status = 'active' where id = district_id;
 
   update public.studios set status = 'inactive' where id = studio_id;
   if exists (select 1 from public.get_dance_card_contact(valid_card_id)) then

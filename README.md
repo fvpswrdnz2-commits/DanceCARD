@@ -1,16 +1,16 @@
 # DanceCARD
 
-DanceCARD 是一个面向移动端的闲置舞蹈次卡信息交换工具。买家可以按照城市、行政区和舞室查找次卡，卖家可以发布剩余课时并提供微信联系方式。平台不处理支付、不担保交易，也不验证次卡信息。
+DanceCARD 2.0 是一个面向移动端的闲置舞蹈次卡信息交换工具。买家按照“城市 → 舞室”查找次卡；同城连锁舞室的通用卡汇聚在同一个舞室入口。卖家可以发布剩余课时并提供微信联系方式。平台不处理支付、不担保交易，也不验证次卡信息。
 
-DanceCARD is a mobile-first information exchange tool for unused dance-studio class cards. Buyers browse by city, administrative district, and studio; sellers publish remaining classes and provide a WeChat contact. The platform does not process payments, guarantee transactions, or verify listings.
+DanceCARD 2.0 is a mobile-first information exchange tool for unused dance-studio class cards. Buyers browse directly from a city to a studio, and city-wide cards for a studio chain share one listing destination. Sellers publish remaining classes and provide a WeChat contact. The platform does not process payments, guarantee transactions, or verify listings.
 
 ![DanceCARD 视觉方向 / DanceCARD visual direction](memory-bank/assets/ui-reference.png)
 
 ## 项目状态 / Current Status
 
-游客、卖家和管理员的 MVP 流程已经在 CloudBase 开发环境中实现。V1 以 H5 为正式发布目标；微信小程序目前可以成功构建、已配置开发接口合法请求域名并通过开发者工具模拟器冒烟测试，但尚未提交或发布。正式公开上线前仍需准备生产环境及生产级自定义域名、隐私政策、用户协议及专业法律审阅。
+游客、卖家和管理员的 MVP 流程已经在 CloudBase 开发环境中实现。V2 将浏览和数据模型升级为“城市 → 城市级舞室 → 次卡”，移除行政区搜索层级。H5 仍是正式发布目标；微信小程序保持可构建并使用同一后端，但尚未提交或发布。正式公开上线前仍需准备生产环境及生产级自定义域名、隐私政策、用户协议及专业法律审阅。
 
-The guest, seller, and administrator MVP flows are implemented in a CloudBase development environment. H5 is the V1 release target. The WeChat Mini Program target builds successfully, has a registered development request domain, and has passed a Developer Tools simulator smoke test, but is not submitted or released. A production environment and production-grade custom domain, privacy policy, user agreement, and professional legal review are still required before formal public launch.
+The guest, seller, and administrator MVP flows are implemented in a CloudBase development environment. V2 upgrades browsing and storage to city → city-wide studio → card, removing the district search layer. H5 remains the release target; the WeChat Mini Program continues to build against the same backend but is not submitted or released. A production environment and production-grade custom domain, privacy policy, user agreement, and professional legal review are still required before formal public launch.
 
 ## 技术架构 / Architecture
 

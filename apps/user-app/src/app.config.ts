@@ -4,7 +4,6 @@ export default defineAppConfig({
     'pages/index/index',
     'pages/faq/index',
     'pages/mine/index',
-    'pages/districts/index',
     'pages/studios/index',
     'pages/studio/index',
     'pages/card-detail/index',

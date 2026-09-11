@@ -1,8 +1,8 @@
 # DanceCARD Architecture
 
-- Last updated: 2026-08-24
-- Implementation status: guest, seller, and administrator MVP flows implemented and verified in development
-- Baseline status: Milestones 1–6 verified; Steps 1–62 complete
+- Last updated: 2026-09-11
+- Implementation status: DanceCARD 2.0 city-to-studio browsing implemented; development deployment verification pending
+- Baseline status: V1 Milestones 1–6 verified; V2 city-level studio migration implemented locally
 
 ## Mandatory Pre-code Reading
 
@@ -82,18 +82,18 @@ The root pnpm workspace owns the only lockfile and dependency installation. Appl
 - `apps/user-app/src/index.html`: H5 shell; the exact `htmlWebpackPlugin.options.script` placeholder is replaced by Taro's Vite plugin.
 - `apps/user-app/src/config/environment.ts`: pure public-environment parser and clear validation errors.
 - `apps/user-app/src/config/runtime-environment.ts`: binds Taro-prefixed runtime variables to that parser.
-- `apps/user-app/src/pages/`: public browsing plus phone login, studio-bound publishing, editing, and personal-card management routes. Publication remains inside the selected studio rather than the tab bar.
+- `apps/user-app/src/pages/`: city-to-studio public browsing plus phone login, studio-bound publishing, editing, and personal-card management routes. Publication remains inside the selected studio rather than the tab bar; there is no district route.
 - `apps/user-app/src/components/`: cross-page hero, asynchronous states, the shared validated dance-card form, and `page-shell.tsx`, which owns the persistent three-destination primary navigation used by every user-facing route.
 - `apps/user-app/src/services/public-api.ts`: instantiates the shared public, authentication, and seller CloudBase adapters.
 - `apps/user-app/src/utils/`: safe route decoding plus a strict allowlist for post-login return paths.
-- `apps/admin-web/src/components/`: phone login guard and the city, district, studio, card, user, and audit-log dashboard.
+- `apps/admin-web/src/components/`: phone login guard and the city, city-level studio, card, user, and audit-log dashboard.
 - `apps/admin-web/src/services/cloudbase.ts`: instantiates the shared authentication and administrator adapters.
 - `apps/admin-web/src/config/environment.ts`: pure admin public-environment parser.
 - `apps/admin-web/src/config/runtime-environment.ts`: binds Vite-prefixed variables to the parser.
 - `apps/*/vitest.config.ts`, `packages/domain/vitest.config.ts`: unit/component test environments and JUnit reports.
 - `e2e/playwright.config.ts`, `e2e/tests/h5-smoke.spec.ts`: start H5 and verify the full anonymous buyer/contact journey, a no-card studio, and an invalid card link; HTML reports go to ignored output directories.
 - `apps/*/.env.example`, `cloudfunctions/.env.example`: safe configuration contracts. Real `.env` files are ignored.
-- `packages/domain/src/`: canonical user, identity, location, studio, card, visibility, hidden-reason, and administrator-action types.
+- `packages/domain/src/`: canonical user, identity, city, city-level studio, card, visibility, hidden-reason, and administrator-action types.
 - `packages/validation/src/dance-card.ts`: publish/edit validation, including Shanghai dates, precise RMB prices, text limits, and dance-scope combinations.
 - `packages/validation/src/portable.ts`: equivalent dependency-light edit-form validation for the WeChat runtime; it avoids Zod and `Intl` while preserving the same Shanghai-date and field rules.
 - `cloudbase/migrations/`: append-only schema, indexes, RLS policies, safe views, contact RPC, and secured expiration maintenance in version order.
@@ -129,7 +129,7 @@ Vitest 0.34.6 is intentionally scoped to the Taro app because that app is tied t
 ## Data Model and Access Boundary
 
 - `users` is the business profile and authorization record; `user_identities` maps CloudBase Auth subjects to business users. Login identity is never treated as the business user row itself.
-- `cities` → `districts` → `studios` provides the location hierarchy. Locations are disabled rather than cascaded away; a disabled ancestor makes all descendant cards non-public.
+- `cities` → `studios` provides the DanceCARD 2.0 browsing hierarchy. A studio is one city-level card scope, so a chain's branches share one studio and one card list. Cities and studios are disabled rather than cascaded away; a disabled ancestor makes all descendant cards non-public.
 - `dance_cards` stores seller nickname and WeChat snapshots, exact decimal price, remaining classes, dance scope, expiry date, visibility, hidden reason, and soft deletion. It contains no order, payment, purchase, split-sale, or sold state.
 - `admin_action_logs` is append-only audit evidence for privileged mutations.
 - `public_dance_cards` exposes only currently public cards and excludes WeChat IDs. `get_dance_card_contact` rechecks the full visibility chain and returns one contact only for one valid card.
@@ -140,7 +140,7 @@ Vitest 0.34.6 is intentionally scoped to the Taro app because that app is tied t
 
 Public queries compare `expire_date` with the current `Asia/Shanghai` date, so an expired card disappears even if maintenance is delayed. The `expire-dance-cards` event function also runs daily at 00:10 and marks prior-date active cards hidden with reason `expired`. Its maintenance token exists only in ignored local configuration and the cloud-function environment; PostgreSQL stores only a SHA-256 digest. Anonymous calls without that token fail.
 
-Migrations `20260821194000` through `20260822110500` are applied in the development environment. Each has a rollback under `database/rollbacks/`. The repeatable seed currently creates 2 cities, 32 districts, 15 studios, 3 development users, and 6 state-covering cards. Both database milestone suites run inside transactions and roll back all test changes.
+Migrations `20260821194000` through `20260822110500` are the deployed V1 baseline. Migration `20260911140000_city_studio_search.sql` upgrades studios to direct city ownership, consolidates known same-city branches, removes the district table, and has a matching rollback. The repeatable V2 seed creates 2 cities, 3 city-level studios, 3 development users, and 6 state-covering cards. Both database milestone suites run inside transactions and roll back all test changes.
 
 CloudBase's browser SDK cannot reliably parse a raw scalar UUID returned by an RPC. Browser-facing write functions therefore return one-row tables, while the original scalar functions remain available for internal SQL composition. Authentication likewise uses a one-row profile RPC that atomically creates or returns the business profile.
 
@@ -150,17 +150,17 @@ Development, test, and production environments are separate. Only API base URLs,
 
 ## Implemented Guest Data Flow
 
-The Taro app establishes a lazy anonymous CloudBase session and reads active cities, districts, and studios directly through RLS-protected PostgreSQL access. It reads card list/detail data only from `public_dance_cards`. The shared client validates route IDs before querying, uses 20-item stable pages, and maps database names into transport-neutral application objects.
+The Taro app establishes a lazy anonymous CloudBase session and reads active cities and their studios directly through RLS-protected PostgreSQL access. It reads card list/detail data only from `public_dance_cards`. The shared client validates route IDs before querying, uses 20-item stable pages, and maps database names into transport-neutral application objects.
 
 Seller contact is not included in list or detail responses. A contact action calls `get_dance_card_contact` for exactly one card and copies the returned value directly through Taro's cross-platform clipboard API; the risk notice remains visible on the detail page without a second confirmation modal. Hidden, expired, deleted, disabled-user, and inactive-location cards fail the same server-side visibility recheck.
 
 The user app does not use Taro's native tab bar. `PageShell` renders one custom bottom navigation on every page, including nested browsing, login, publishing, editing, loading, and unavailable states. Primary destinations use `reLaunch`, while ordinary hierarchy navigation continues to use `navigateTo`. This avoids native blank icon placeholders and makes the navigation consistent across H5 and the WeChat build.
 
-The user app's current visual system is a dark editorial/archive theme approved on 2026-08-24. `app.scss` owns the shared near-black canvas, warm-white type, coral-orange actions, muted-gold metadata, cool-slate rules, compact rectangular controls, and numbered bottom navigation. `PageShell` owns the persistent brand masthead and three-item navigation, while the city page adds numbered bilingual city rows and the restrained `DC` watermark. The earlier Neo-pop asset is retained only as an archive and must not drive new UI work.
+The user app's current visual system is a dark editorial/archive theme approved on 2026-08-24. `app.scss` owns the shared near-black canvas, warm-white type, coral-orange actions, muted-gold metadata, cool-slate rules, compact rectangular controls, and numbered bottom navigation. `PageShell` owns the persistent brand masthead and three-item navigation, while city and studio pages use numbered rows and the city page retains the restrained `DC` watermark. The earlier Neo-pop asset is retained only as an archive and must not drive new UI work.
 
-City, district, or studio additions remain administrator-managed. The studio list opens an in-app help dialog and directs submissions to `m18800126467@163.com`; the administrator phone remains an authentication identity only. Hero cards contain only an eyebrow and title, while instructional copy is kept in the relevant content or modal instead of promotional subtitles.
+City or studio additions remain administrator-managed. The studio list opens an in-app help dialog and directs submissions to `m18800126467@163.com`; requests include the city and applicable branch information. The administrator phone remains an authentication identity only. Hero cards contain only an eyebrow and title, while instructional copy is kept in the relevant content or modal instead of promotional subtitles.
 
-The development H5 is currently deployed at `https://dancecard-dev-d5g955nph1202e188-1472887055.tcloudbaseapp.com`. This URL is development verification infrastructure, not the formal V1 production release.
+The development H5 is currently deployed at `https://dancecard-dev-d5g955nph1202e188-1472887055.tcloudbaseapp.com`. This URL is development verification infrastructure, not the formal V2 production release.
 
 The registered WeChat Mini Program uses AppID `wx8c38c9226b715a39`. Its earlier native QuickStart project and `cloud1` environment remain environment-connectivity proof only. The product build continues to use the existing independent `dancecard-dev` CloudBase PostgreSQL/Auth backend so the H5 and Mini Program share one business data source and the same access policies.
 
@@ -170,11 +170,11 @@ Phone OTP creates a CloudBase Auth session and an independently keyed DanceCARD 
 
 Publishing is atomic: the server derives the owner from the authenticated subject, validates active location ancestry, snapshots the card nickname and WeChat ID, and saves those values as account defaults. Seller reads and mutations are owner-filtered, including for administrator accounts. Editing cannot change card ownership or studio. Hide, valid restore, and soft delete are enforced by both the client workflow and RLS/trigger rules.
 
-The administration app is deployed at `https://dancecard-dev-d5g955nph1202e188-1472887055.tcloudbaseapp.com/admin/`. It exposes active-administrator-only city, district, studio, card moderation, user status, and read-only audit-log areas. Exact normalized studio duplicates are blocked in one district; similar names remain an administrator decision. All privileged mutations use atomic RPCs and append audit records.
+The administration app is deployed at `https://dancecard-dev-d5g955nph1202e188-1472887055.tcloudbaseapp.com/admin/`. DanceCARD 2.0 exposes active-administrator-only city, city-level studio, card moderation, user status, and read-only audit-log areas. Exact normalized studio duplicates are blocked within one city; similar names require an administrator to decide whether they are one chain. All privileged mutations use atomic RPCs and append audit records.
 
 ## Product and Delivery Boundaries
 
-V1 excludes payment, escrow, transaction guarantees, chat, purchases, sold status, favorites, reports, location, recommendations, ratings, and image upload. Guests browse and may copy one valid seller contact without login. Sellers use SMS-code login. Administrators manage locations, studios, users, and noncompliant listings in the separate protected app.
+V2 excludes payment, escrow, transaction guarantees, chat, purchases, sold status, favorites, reports, location, recommendations, ratings, and image upload. Guests browse city-level studios and may copy one valid seller contact without login. Sellers use SMS-code login. Administrators manage cities, studios, users, and noncompliant listings in the separate protected app.
 
 The development H5 is publicly reachable for product acceptance, but the formal production environment and custom domain are not configured. The WeChat target passed Developer Tools and real-device acceptance on 2026-08-28 for browsing, protected phone login, publishing, editing, and FAQ routes against the real development backend. Its development CloudBase gateway is registered as a legal request domain, but the Mini Program is not submitted or published. Privacy policy, user agreement, production configuration, a production-grade custom domain, and professional legal review remain required before formal public launch.
 

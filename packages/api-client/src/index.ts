@@ -5,14 +5,8 @@ export interface PublicCity {
   name: string;
 }
 
-export interface PublicDistrict {
-  cityId: string;
-  id: string;
-  name: string;
-}
-
 export interface PublicStudio {
-  districtId: string;
+  cityId: string;
   id: string;
   name: string;
 }
@@ -45,8 +39,7 @@ export interface DanceCardPublicApi {
   getContact(id: string): Promise<string>;
   listCards(studioId: string, page?: number): Promise<Page<PublicDanceCard>>;
   listCities(): Promise<PublicCity[]>;
-  listDistricts(cityId: string): Promise<PublicDistrict[]>;
-  listStudios(districtId: string): Promise<PublicStudio[]>;
+  listStudios(cityId: string): Promise<PublicStudio[]>;
 }
 
 export interface SellerProfile {
@@ -81,13 +74,8 @@ export interface AdminCity extends PublicCity {
   status: 'active' | 'inactive';
 }
 
-export interface AdminDistrict extends PublicDistrict {
-  sortOrder: number;
-  status: 'active' | 'inactive';
-}
-
 export interface AdminStudio extends PublicStudio {
-  address: string | null;
+  branchInfo: string | null;
   status: 'active' | 'inactive';
 }
 
@@ -112,13 +100,11 @@ export interface AdminActionLog {
 export interface DanceCardAdminApi {
   listCards(): Promise<AdminDanceCard[]>;
   listCities(): Promise<AdminCity[]>;
-  listDistricts(): Promise<AdminDistrict[]>;
   listLogs(): Promise<AdminActionLog[]>;
   listStudios(): Promise<AdminStudio[]>;
   listUsers(): Promise<AdminUser[]>;
   moderateCard(id: string, action: 'delete' | 'hide', reason: string): Promise<void>;
   saveCity(input: Omit<AdminCity, 'id'> & { id?: string }): Promise<string>;
-  saveDistrict(input: Omit<AdminDistrict, 'id'> & { id?: string }): Promise<string>;
   saveStudio(input: Omit<AdminStudio, 'id'> & { id?: string }): Promise<string>;
   setUserStatus(id: string, status: 'active' | 'disabled', reason: string): Promise<void>;
 }
@@ -242,38 +228,19 @@ function createPublicApi(app: CloudBaseApp): DanceCardPublicApi {
       return rows(data).map((row) => ({ id: String(row.id), name: String(row.name) }));
     },
 
-    async listDistricts(cityId) {
+    async listStudios(cityId) {
       if (!isUuid(cityId)) return [];
       await ensureGuestSession();
       const data = assertSuccess(
         await database
-          .from('districts')
+          .from('studios')
           .select('id,city_id,name')
           .eq('city_id', cityId)
           .eq('status', 'active')
-          .order('sort_order', { ascending: true })
           .order('name', { ascending: true }),
       );
       return rows(data).map((row) => ({
         cityId: String(row.city_id),
-        id: String(row.id),
-        name: String(row.name),
-      }));
-    },
-
-    async listStudios(districtId) {
-      if (!isUuid(districtId)) return [];
-      await ensureGuestSession();
-      const data = assertSuccess(
-        await database
-          .from('studios')
-          .select('id,district_id,name')
-          .eq('district_id', districtId)
-          .eq('status', 'active')
-          .order('name', { ascending: true }),
-      );
-      return rows(data).map((row) => ({
-        districtId: String(row.district_id),
         id: String(row.id),
         name: String(row.name),
       }));
@@ -576,22 +543,6 @@ function createAdminApi(app: CloudBaseApp): DanceCardAdminApi {
       }));
     },
 
-    async listDistricts() {
-      const data = assertSuccess(
-        await database
-          .from('districts')
-          .select('id,city_id,name,status,sort_order')
-          .order('sort_order', { ascending: true }),
-      );
-      return rows(data).map((row) => ({
-        cityId: String(row.city_id),
-        id: String(row.id),
-        name: String(row.name),
-        sortOrder: Number(row.sort_order),
-        status: row.status === 'inactive' ? 'inactive' : 'active',
-      }));
-    },
-
     async listLogs() {
       const data = assertSuccess(
         await database
@@ -613,11 +564,11 @@ function createAdminApi(app: CloudBaseApp): DanceCardAdminApi {
 
     async listStudios() {
       const data = assertSuccess(
-        await database.from('studios').select('id,district_id,name,address,status').order('name'),
+        await database.from('studios').select('id,city_id,name,branch_info,status').order('name'),
       );
       return rows(data).map((row) => ({
-        address: row.address ? String(row.address) : null,
-        districtId: String(row.district_id),
+        branchInfo: row.branch_info ? String(row.branch_info) : null,
+        cityId: String(row.city_id),
         id: String(row.id),
         name: String(row.name),
         status: row.status === 'inactive' ? 'inactive' : 'active',
@@ -662,27 +613,12 @@ function createAdminApi(app: CloudBaseApp): DanceCardAdminApi {
       );
     },
 
-    async saveDistrict(input) {
-      return rpcRowId(
-        assertSuccess(
-          await database.rpc('admin_save_district_row', {
-            city_id_value: input.cityId,
-            district_id_value: input.id || null,
-            name_value: input.name,
-            sort_order_value: input.sortOrder,
-            status_value: input.status,
-          }),
-        ),
-        '行政区保存失败',
-      );
-    },
-
     async saveStudio(input) {
       return rpcRowId(
         assertSuccess(
           await database.rpc('admin_save_studio_row', {
-            address_value: input.address || '',
-            district_id_value: input.districtId,
+            branch_info_value: input.branchInfo || '',
+            city_id_value: input.cityId,
             name_value: input.name,
             status_value: input.status,
             studio_id_value: input.id || null,

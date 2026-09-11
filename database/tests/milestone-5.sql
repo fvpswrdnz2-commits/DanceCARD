@@ -21,7 +21,7 @@ declare
   card_id uuid;
 begin
   select id into studio_id from public.studios
-  where normalized_name = public.normalize_studio_name('CASTER舞蹈教室（上海大悦城南座店）');
+  where normalized_name = public.normalize_studio_name('CASTER舞蹈教室');
 
   select id into card_id from public.publish_dance_card_row(
     studio_id, '原子发布', 'atomic-wechat', 12, 45.50,
@@ -78,7 +78,6 @@ set local role authenticated;
 do $$
 declare
   city_id uuid;
-  district_id uuid;
   studio_id uuid;
   target_card_id uuid := '10000000-0000-4000-8000-000000000001';
   log_count_before integer;
@@ -88,16 +87,13 @@ begin
   select count(*) into log_count_before from public.admin_action_logs;
 
   select id into city_id from public.admin_save_city_row(null, '测试城市', 'active', 999);
-  select id into district_id from public.admin_save_district_row(
-    null, city_id, '测试区', 'active', 10
-  );
   select id into studio_id from public.admin_save_studio_row(
-    null, district_id, 'Test Dance Studio', '测试地址', 'active'
+    null, city_id, 'Test Dance Studio', '全市通用', 'active'
   );
 
   begin
     perform public.admin_save_studio_row(
-      null, district_id, ' test-dance studio ', '', 'active'
+      null, city_id, ' test-dance studio ', '', 'active'
     );
   exception when unique_violation then duplicate_blocked := true;
   end;
@@ -125,7 +121,7 @@ begin
   end if;
 
   select count(*) into log_count_after from public.admin_action_logs;
-  if log_count_after < log_count_before + 5 then
+  if log_count_after < log_count_before + 4 then
     raise exception 'administrator mutations did not create complete audit logs';
   end if;
 end;

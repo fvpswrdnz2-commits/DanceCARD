@@ -1,6 +1,6 @@
 import type { AdminActionLogId, IsoDateTime, UserId } from './primitives';
 
-export const ADMIN_TARGET_TYPES = ['user', 'city', 'district', 'studio', 'dance_card'] as const;
+export const ADMIN_TARGET_TYPES = ['user', 'city', 'studio', 'dance_card'] as const;
 export type AdminTargetType = (typeof ADMIN_TARGET_TYPES)[number];
 
 export const ADMIN_ACTIONS = [

@@ -2,11 +2,11 @@
 
 ## Current Status
 
-- Date: 2026-08-22
-- Active milestone: Milestone 7 — Quality, security, and cross-target acceptance
-- Active step: Step 63 — Unified state and quality review
-- Step status: Milestones 1–6 complete; development deployment is ready for product acceptance
-- Next permitted step: Step 63; formal production release remains blocked by production and legal prerequisites
+- Date: 2026-09-11
+- Active milestone: DanceCARD V2 — City-level studio browsing
+- Active step: Step 83 — Verification, GitHub delivery, and development deployment
+- Step status: V2 implementation complete locally; verification and deployment pending
+- Next permitted step: Run the full V2 verification chain; formal production release remains blocked by production and legal prerequisites
 
 ## Step 1 Work Prepared
 
@@ -217,3 +217,12 @@ The development MVP and public source publication are complete. The next product
 - Real-device testing isolated `c is not a function` to Zod 4 execution during client-side form validation on iPhone. Added a dependency-light portable validator that preserves nickname, WeChat ID, class count, RMB precision, Shanghai-date, dance-scope, and optional-text rules without Zod or `Intl`.
 - The WeChat bundle no longer contains Zod, and the verified production build dropped from 242 to 162 transformed modules. Portable validation has 28 passing package tests together with 11 passing user-app tests, strict TypeScript, ESLint, and the WeChat production build.
 - On 2026-08-28 the user confirmed real-device card publication succeeds. The same shared form and portable validator cover editing from “我的次卡”.
+
+## DanceCARD V2 City-Level Studio Upgrade
+
+- Replaced the buyer and seller discovery path with “城市 → 舞室 → 次卡”; the administrative-district page and route are removed.
+- Redefined a studio as one city-level card scope. Known branches of 嘉禾舞社, CASTER舞蹈教室, and GH5 DANCE STUDIO are represented as shared studio subjects with optional administrator-maintained branch information.
+- Added migration `20260911140000_city_studio_search.sql` and a matching structural rollback. The migration consolidates known branch records, preserves associated cards, switches RLS and administrator RPCs to city ownership, and removes the district table.
+- Updated public and administrator API contracts, domain types, the administration dashboard, repeatable seed data, database suites, H5 journeys, README, and all active product/architecture specifications.
+- Versioned the private workspace packages and both applications as `2.0.0`.
+- Verification, GitHub push, and CloudBase development deployment are pending.

@@ -13,17 +13,16 @@ const SUPPORT_EMAIL = 'm18800126467@163.com';
 export default function StudiosPage() {
   const [showHelp, setShowHelp] = useState(false);
   const params = getCurrentInstance().router?.params ?? {};
-  const districtId = readRouteParam(params.districtId);
-  const districtName = readRouteParam(params.districtName, '当前区域');
+  const cityId = readRouteParam(params.cityId);
+  const cityName = readRouteParam(params.cityName, '当前城市');
   const studios = useAsyncResource(
-    () =>
-      districtId ? publicApi.listStudios(districtId) : Promise.reject(new Error('行政区链接无效')),
-    districtId,
+    () => (cityId ? publicApi.listStudios(cityId) : Promise.reject(new Error('城市链接无效'))),
+    cityId,
   );
 
   return (
     <PageShell>
-      <Hero eyebrow={districtName} title='选择舞室' />
+      <Hero eyebrow={cityName} title='选择舞室' />
       {studios.loading || studios.error ? (
         <AsyncState {...studios} onRetry={studios.reload} />
       ) : null}
@@ -63,8 +62,8 @@ export default function StudiosPage() {
             </Button>
             <Text className='help-modal__title'>如何添加舞室 / 城市？</Text>
             <Text className='help-modal__copy'>
-              如果你需要新增城市、行政区或舞室，请告知舞室的中文 /
-              英文名称、所在城市和行政区，并提供大众点评或地图截图。信息越完整，管理员越能及时核实并上架。
+              如果你需要新增城市或舞室，请告知舞室的中文 / 英文名称、所在城市、可通用的分店信息，
+              并提供大众点评或地图截图。信息越完整，管理员越能及时核实并上架。
             </Text>
             <Text className='help-modal__email'>请发送邮件至 {SUPPORT_EMAIL}</Text>
             <Button
