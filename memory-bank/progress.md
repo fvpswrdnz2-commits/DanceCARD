@@ -5,8 +5,8 @@
 - Date: 2026-09-11
 - Active milestone: DanceCARD V2 — City-level studio browsing
 - Active step: Step 83 — Verification, GitHub delivery, and development deployment
-- Step status: V2 implementation complete locally; verification and deployment pending
-- Next permitted step: Run the full V2 verification chain; formal production release remains blocked by production and legal prerequisites
+- Step status: Complete; V2 is pushed, deployed, and verified in the development environment
+- Next permitted step: Formal production readiness; release remains blocked by production and legal prerequisites
 
 ## Step 1 Work Prepared
 
@@ -225,4 +225,7 @@ The development MVP and public source publication are complete. The next product
 - Added migration `20260911140000_city_studio_search.sql` and a matching structural rollback. The migration consolidates known branch records, preserves associated cards, switches RLS and administrator RPCs to city ownership, and removes the district table.
 - Updated public and administrator API contracts, domain types, the administration dashboard, repeatable seed data, database suites, H5 journeys, README, and all active product/architecture specifications.
 - Versioned the private workspace packages and both applications as `2.0.0`.
-- Verification, GitHub push, and CloudBase development deployment are pending.
+- Passed formatting, ESLint, strict TypeScript, 46 unit/component tests, H5 and WeChat builds, the administrator build, both transactional database suites, and all 5 Playwright journeys.
+- Pushed the V2 source change to public `origin/main` as `e11d59f`, applied migration `20260911140000`, and safely deployed verified H5 and administrator artifacts to the CloudBase development environment.
+- Live browser verification confirmed that selecting Shanghai opens the studio list directly, exposes `CASTER舞蹈教室` and `GH5 DANCE STUDIO` without an administrative-district step, and displays the consolidated CASTER card list. The administrator login page also loads from `/admin/`.
+- Retained existing product-acceptance cards. Database assertions now scope exact fixture counts to stable seed IDs so real development records do not make regression tests nondeterministic.

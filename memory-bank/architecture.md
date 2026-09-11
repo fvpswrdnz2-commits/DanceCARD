@@ -1,8 +1,8 @@
 # DanceCARD Architecture
 
 - Last updated: 2026-09-11
-- Implementation status: DanceCARD 2.0 city-to-studio browsing implemented; development deployment verification pending
-- Baseline status: V1 Milestones 1–6 verified; V2 city-level studio migration implemented locally
+- Implementation status: DanceCARD 2.0 city-to-studio browsing implemented, deployed, and verified in development
+- Baseline status: V1 Milestones 1–6 and the V2 city-level studio upgrade are verified
 
 ## Mandatory Pre-code Reading
 
@@ -140,7 +140,7 @@ Vitest 0.34.6 is intentionally scoped to the Taro app because that app is tied t
 
 Public queries compare `expire_date` with the current `Asia/Shanghai` date, so an expired card disappears even if maintenance is delayed. The `expire-dance-cards` event function also runs daily at 00:10 and marks prior-date active cards hidden with reason `expired`. Its maintenance token exists only in ignored local configuration and the cloud-function environment; PostgreSQL stores only a SHA-256 digest. Anonymous calls without that token fail.
 
-Migrations `20260821194000` through `20260822110500` are the deployed V1 baseline. Migration `20260911140000_city_studio_search.sql` upgrades studios to direct city ownership, consolidates known same-city branches, removes the district table, and has a matching rollback. The repeatable V2 seed creates 2 cities, 3 city-level studios, 3 development users, and 6 state-covering cards. Both database milestone suites run inside transactions and roll back all test changes.
+Migrations `20260821194000` through `20260822110500` are the deployed V1 baseline. Applied migration `20260911140000_city_studio_search.sql` upgrades studios to direct city ownership, consolidates known same-city branches, removes the district table, and has a matching rollback. The repeatable V2 seed creates 2 cities, 3 city-level studios, 3 development users, and 6 state-covering cards without removing retained product-acceptance records. Both database milestone suites pass in the development environment, run inside transactions, and roll back all test changes.
 
 CloudBase's browser SDK cannot reliably parse a raw scalar UUID returned by an RPC. Browser-facing write functions therefore return one-row tables, while the original scalar functions remain available for internal SQL composition. Authentication likewise uses a one-row profile RPC that atomically creates or returns the business profile.
 

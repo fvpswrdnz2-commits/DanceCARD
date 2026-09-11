@@ -98,8 +98,19 @@ begin
   select count(*) into visible_city_count from public.cities;
   if visible_city_count <> 2 then raise exception 'anon city visibility expected 2, got %', visible_city_count; end if;
 
-  select count(*) into public_card_count from public.public_dance_cards;
-  if public_card_count <> 3 then raise exception 'anon public cards expected 3, got %', public_card_count; end if;
+  select count(*) into public_card_count
+  from public.public_dance_cards
+  where id in (
+    '10000000-0000-4000-8000-000000000001',
+    '10000000-0000-4000-8000-000000000002',
+    '10000000-0000-4000-8000-000000000003',
+    '10000000-0000-4000-8000-000000000004',
+    '10000000-0000-4000-8000-000000000005',
+    '10000000-0000-4000-8000-000000000006'
+  );
+  if public_card_count <> 3 then
+    raise exception 'anon seed-card visibility expected 3, got %', public_card_count;
+  end if;
 end;
 $$;
 reset role;

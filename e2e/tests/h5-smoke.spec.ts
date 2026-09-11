@@ -25,8 +25,8 @@ test('guest can browse from a city to a dance-card detail', async ({ page }) => 
 
 test('guest sees a useful empty state for a studio without cards', async ({ page }) => {
   await page.goto('/');
-  await page.getByText('北京', { exact: true }).click();
-  await page.getByText('嘉禾舞社', { exact: true }).click();
+  await page.getByText('上海', { exact: true }).click();
+  await page.getByText('GH5 DANCE STUDIO', { exact: true }).click();
 
   await expect(page.getByText('还没有人在这里分享次卡', { exact: true })).toBeVisible();
   await expect(page.getByText('＋ 添加次卡', { exact: true })).toBeVisible();
