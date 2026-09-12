@@ -1,8 +1,8 @@
 # DanceCARD Architecture
 
-- Last updated: 2026-09-11
-- Implementation status: DanceCARD 2.0 city-to-studio browsing implemented, deployed, and verified in development
-- Baseline status: V1 Milestones 1–6 and the V2 city-level studio upgrade are verified
+- Last updated: 2026-09-12
+- Implementation status: DanceCARD 2.0 city-to-studio browsing implemented and deployed; released 1.x Mini Program compatibility is retained during rollout
+- Baseline status: V1 Milestones 1–6, the V2 city-level studio upgrade, and the rollout compatibility bridge are verified
 
 ## Mandatory Pre-code Reading
 
@@ -130,6 +130,7 @@ Vitest 0.34.6 is intentionally scoped to the Taro app because that app is tied t
 
 - `users` is the business profile and authorization record; `user_identities` maps CloudBase Auth subjects to business users. Login identity is never treated as the business user row itself.
 - `cities` → `studios` provides the DanceCARD 2.0 browsing hierarchy. A studio is one city-level card scope, so a chain's branches share one studio and one card list. Cities and studios are disabled rather than cascaded away; a disabled ancestor makes all descendant cards non-public.
+- Until the uploaded V2 Mini Program is reviewed, released, and adopted, `districts` is a read-only compatibility view rather than a domain table. It exposes one synthetic `全市` record per city, while generated `studios.district_id = studios.city_id` lets released 1.x clients complete their old query without changing V2 ownership or UI behavior.
 - `dance_cards` stores seller nickname and WeChat snapshots, exact decimal price, remaining classes, dance scope, expiry date, visibility, hidden reason, and soft deletion. It contains no order, payment, purchase, split-sale, or sold state.
 - `admin_action_logs` is append-only audit evidence for privileged mutations.
 - `public_dance_cards` exposes only currently public cards and excludes WeChat IDs. `get_dance_card_contact` rechecks the full visibility chain and returns one contact only for one valid card.
@@ -140,7 +141,7 @@ Vitest 0.34.6 is intentionally scoped to the Taro app because that app is tied t
 
 Public queries compare `expire_date` with the current `Asia/Shanghai` date, so an expired card disappears even if maintenance is delayed. The `expire-dance-cards` event function also runs daily at 00:10 and marks prior-date active cards hidden with reason `expired`. Its maintenance token exists only in ignored local configuration and the cloud-function environment; PostgreSQL stores only a SHA-256 digest. Anonymous calls without that token fail.
 
-Migrations `20260821194000` through `20260822110500` are the deployed V1 baseline. Applied migration `20260911140000_city_studio_search.sql` upgrades studios to direct city ownership, consolidates known same-city branches, removes the district table, and has a matching rollback. The repeatable V2 seed creates 2 cities, 3 city-level studios, 3 development users, and 6 state-covering cards without removing retained product-acceptance records. Both database milestone suites pass in the development environment, run inside transactions, and roll back all test changes.
+Migrations `20260821194000` through `20260822110500` are the deployed V1 baseline. Applied migration `20260911140000_city_studio_search.sql` upgrades studios to direct city ownership, consolidates known same-city branches, and removes the district domain table. Migration `20260912232000_legacy_miniprogram_location_compatibility.sql` adds a temporary read-only compatibility view and generated lookup key for released 1.x Mini Program clients; both migrations have matching rollbacks. The repeatable V2 seed creates 2 cities, 3 city-level studios, 3 development users, and 6 state-covering cards without removing retained product-acceptance records. Both database milestone suites pass in the development environment, run inside transactions, and roll back all test changes.
 
 CloudBase's browser SDK cannot reliably parse a raw scalar UUID returned by an RPC. Browser-facing write functions therefore return one-row tables, while the original scalar functions remain available for internal SQL composition. Authentication likewise uses a one-row profile RPC that atomically creates or returns the business profile.
 

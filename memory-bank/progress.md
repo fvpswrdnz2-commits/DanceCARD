@@ -229,3 +229,10 @@ The development MVP and public source publication are complete. The next product
 - Pushed the V2 source change to public `origin/main` as `e11d59f`, applied migration `20260911140000`, and safely deployed verified H5 and administrator artifacts to the CloudBase development environment.
 - Live browser verification confirmed that selecting Shanghai opens the studio list directly, exposes `CASTER舞蹈教室` and `GH5 DANCE STUDIO` without an administrative-district step, and displays the consolidated CASTER card list. The administrator login page also loads from `/admin/`.
 - Retained existing product-acceptance cards. Database assertions now scope exact fixture counts to stable seed IDs so real development records do not make regression tests nondeterministic.
+
+## V2 Mini Program Rollout Compatibility Incident
+
+- On 2026-09-12 a real-device screenshot showed the released 1.x Mini Program still opening “选择行政区” and failing because migration `20260911140000` had already removed `public.districts` before V2 completed review and release.
+- Root cause: V2 H5, the V2 WeChat build, and the migrated database were tested individually, but the released 1.x Mini Program was not regression-tested against the V2 database. The deployment removed backward compatibility too early.
+- Added migration `20260912232000_legacy_miniprogram_location_compatibility.sql`: V2 remains city-owned, while released 1.x clients temporarily receive one read-only `全市` compatibility record per city and can filter studios through a generated city-derived key.
+- Added database regression coverage for the exact legacy `city → districts → studios` query shape. The compatibility layer is temporary and must be removed only after V2 is reviewed, released, and the 1.x client is retired.

@@ -37,13 +37,24 @@ begin
 
   if exists (
     select 1 from information_schema.tables
+    where table_schema = 'public' and table_name = 'districts' and table_type = 'BASE TABLE'
+  ) then raise exception 'district base table still exists in DanceCARD 2.0'; end if;
+
+  if not exists (
+    select 1 from information_schema.views
     where table_schema = 'public' and table_name = 'districts'
-  ) then raise exception 'district search layer still exists in DanceCARD 2.0'; end if;
+  ) then raise exception 'legacy Mini Program compatibility view is missing'; end if;
 
   if not exists (
     select 1 from information_schema.columns
     where table_schema = 'public' and table_name = 'studios' and column_name = 'city_id'
   ) then raise exception 'studio is not directly linked to a city'; end if;
+
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'studios'
+      and column_name = 'district_id' and is_generated = 'ALWAYS'
+  ) then raise exception 'legacy studio district key is not generated from the V2 city key'; end if;
 
   begin
     insert into public.dance_cards (
@@ -92,11 +103,29 @@ $$;
 set local role anon;
 do $$
 declare
+  compatibility_district_count integer;
+  legacy_studio_count integer;
   visible_city_count integer;
   public_card_count integer;
 begin
   select count(*) into visible_city_count from public.cities;
   if visible_city_count <> 2 then raise exception 'anon city visibility expected 2, got %', visible_city_count; end if;
+
+  select count(*) into compatibility_district_count
+  from public.districts
+  where id = city_id and name = '全市' and status = 'active';
+  if compatibility_district_count <> visible_city_count then
+    raise exception 'legacy district compatibility expected %, got %',
+      visible_city_count, compatibility_district_count;
+  end if;
+
+  select count(*) into legacy_studio_count
+  from public.districts as district
+  join public.studios as studio on studio.district_id = district.id
+  where district.status = 'active' and studio.status = 'active';
+  if legacy_studio_count <> 3 then
+    raise exception 'legacy city-district-studio query expected 3 studios, got %', legacy_studio_count;
+  end if;
 
   select count(*) into public_card_count
   from public.public_dance_cards
