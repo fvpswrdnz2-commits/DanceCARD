@@ -20,6 +20,8 @@ vi.mock('../../services/public-api', () => ({
     listCities: vi.fn().mockResolvedValue([
       { id: 'beijing', name: '北京' },
       { id: 'shanghai', name: '上海' },
+      { id: 'shenzhen', name: '深圳' },
+      { id: 'unmapped', name: '测试市' },
     ]),
   },
 }));
@@ -30,6 +32,9 @@ describe('user app entry page', () => {
 
     expect(await screen.findByText('北京')).toBeInTheDocument();
     expect(screen.getByText('上海')).toBeInTheDocument();
+    expect(screen.getByText('深圳')).toBeInTheDocument();
+    expect(screen.getByText('SHENZHEN')).toBeInTheDocument();
+    expect(screen.queryByText('CITY')).not.toBeInTheDocument();
     expect(screen.getByText('今天想去哪跳？')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('上海'));

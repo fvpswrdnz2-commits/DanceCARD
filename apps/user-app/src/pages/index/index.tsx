@@ -10,6 +10,7 @@ import './index.scss';
 const CITY_ENGLISH_NAMES: Record<string, string> = {
   北京: 'BEIJING',
   上海: 'SHANGHAI',
+  深圳: 'SHENZHEN',
 };
 
 export default function CitiesPage() {
@@ -21,30 +22,32 @@ export default function CitiesPage() {
       <Text className='section-title'>选择城市</Text>
       {cities.loading || cities.error ? <AsyncState {...cities} onRetry={cities.reload} /> : null}
       {!cities.loading && !cities.error && cities.data?.length === 0 ? (
-        <AsyncState title='暂时还没有城市' copy='首批将开放北京和上海。' />
+        <AsyncState title='暂时还没有城市' copy='开放城市正在准备中。' />
       ) : null}
       <View className='entity-list city-list'>
-        {cities.data?.map((city, index) => (
-          <View
-            className='entity-card city-card'
-            key={city.id}
-            role='button'
-            onClick={() =>
-              Taro.navigateTo({
-                url: `/pages/studios/index?cityId=${encodeURIComponent(city.id)}&cityName=${encodeURIComponent(city.name)}`,
-              })
-            }
-          >
-            <Text className='entity-card__index'>{String(index + 1).padStart(2, '0')}</Text>
-            <View className='entity-card__copy'>
-              <Text className='entity-card__name'>{city.name}</Text>
-              <Text className='entity-card__secondary'>
-                {CITY_ENGLISH_NAMES[city.name] || 'CITY'}
-              </Text>
+        {cities.data?.map((city, index) => {
+          const englishName = CITY_ENGLISH_NAMES[city.name];
+
+          return (
+            <View
+              className='entity-card city-card'
+              key={city.id}
+              role='button'
+              onClick={() =>
+                Taro.navigateTo({
+                  url: `/pages/studios/index?cityId=${encodeURIComponent(city.id)}&cityName=${encodeURIComponent(city.name)}`,
+                })
+              }
+            >
+              <Text className='entity-card__index'>{String(index + 1).padStart(2, '0')}</Text>
+              <View className='entity-card__copy'>
+                <Text className='entity-card__name'>{city.name}</Text>
+                {englishName ? <Text className='entity-card__secondary'>{englishName}</Text> : null}
+              </View>
+              <Text className='entity-card__arrow'>→</Text>
             </View>
-            <Text className='entity-card__arrow'>→</Text>
-          </View>
-        ))}
+          );
+        })}
       </View>
     </PageShell>
   );

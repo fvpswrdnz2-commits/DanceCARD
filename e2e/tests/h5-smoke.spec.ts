@@ -23,6 +23,14 @@ test('guest can browse from a city to a dance-card detail', async ({ page }) => 
   await expect(page.getByText('联系前请留意', { exact: true })).toHaveCount(0);
 });
 
+test('city cards show configured English names without a generic placeholder', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.getByText('深圳', { exact: true })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('SHENZHEN', { exact: true })).toBeVisible();
+  await expect(page.getByText('CITY', { exact: true })).toHaveCount(0);
+});
+
 test('guest sees a useful empty state for a studio without cards', async ({ page }) => {
   await page.goto('/');
   await page.getByText('上海', { exact: true }).click();
